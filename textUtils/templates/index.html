@@ -44,7 +44,8 @@
     </div>
 
     <div class="container mt-2">
-        <form action="/analyze/" method="post"> {% csrf_token %}
+        <form action="/analyze/" method="post"> {% csrf_token %} 
+            <!-- csrf_token added to remove posting data CSRF provides protection -->
             <label style="margin-bottom: 10px;" for="floatingTextarea">Enter you text and let TextUtils do the magic!</label>
             <div class="form-floating">
                 <textarea class="form-control" placeholder="Leave a comment here" id="floatingTextarea"
@@ -70,7 +71,7 @@
             </div>
             <div class="form-check form-switch">
                 <input class="form-check-input" type="checkbox" role="switch" id="customSwitch5"
-                    name="extraspaceremover">
+                    name="charcount">
                 <label class="form-check-label" for="customSwitch5">Count characters</label>
             </div>
             <button type="submit" class="btn btn-dark mt-2">Analyze Text</button>
