@@ -13,8 +13,6 @@ def about(request):
 def analyze(request):
     post_obj = request.POST
     org_text = post_obj.get('analysis-text', 'default')
-    print("ORIGINAL TEXT:", org_text)
-    analyzed_text = ''
 
     # Check which buttons are enabled
     removepunc = post_obj.get('removepunc', 'off')
@@ -23,50 +21,45 @@ def analyze(request):
     extraspaceremover = post_obj.get('extraspaceremover', 'off')
     charcount = post_obj.get('charcount', 'off')
 
-
+    # Analyze the text, supports multiple operations
     if removepunc == 'on':
+        analyzed_text = ''
         punctuations = '''{}()[];:'"\,!@#$`?%^&*~.|/-_+<>'''
-        removed = ''
         for char in org_text:
             if char not in punctuations:
                 analyzed_text += char
-            else:
-                removed += char
-        print('Removed characters:', removed)
-        params = {'purpose': 'Removed punctuations',
-                  'analyzed_text': analyzed_text}
-        return render(request, 'analyze.html', params)
+        params = {'purpose': 'Removed punctuations', 'analyzed_text': analyzed_text}
+        org_text = analyzed_text
 
-    elif capitalize == 'on':
+    if capitalize == 'on':
         analyzed_text = org_text.upper()
-        params = {'purpose': 'Converted to Uppercase',
-                  'analyzed_text': analyzed_text}
-        return render(request, 'analyze.html', params)
+        params = {'purpose': 'Converted to Uppercase', 'analyzed_text': analyzed_text}
+        org_text = analyzed_text
 
-    elif newlineremover == 'on':
+    if newlineremover == 'on':
+        analyzed_text = ''
         for char in org_text:
-            if char != '\n':
+            if char != '\n' and char != '\r':
                 analyzed_text += char
-        params = {'purpose': 'Removed new line',
-                  'analyzed_text': analyzed_text}
-        return render(request, 'analyze.html', params)
+        params = {'purpose': 'Removed new line', 'analyzed_text': analyzed_text}
+        org_text = analyzed_text
 
-    elif extraspaceremover == 'on':
+    if extraspaceremover == 'on':
+        analyzed_text = ''
         for index, char in enumerate(org_text):
             if not (org_text[index] == '' and org_text[index + 1] == ''):
                 analyzed_text += char
-        params = {'purpose': 'Removed extra spaces',
-                  'analyzed_text': analyzed_text}
-        return render(request, 'analyze.html', params)
+        params = {'purpose': 'Removed extra spaces', 'analyzed_text': analyzed_text}
+        org_text = analyzed_text
 
-    elif charcount == 'on':
+    if charcount == 'on':
         count = 0
         for char in org_text:
             if char != ' ':
                 count += 1
-        params = {'purpose': 'Count number of characters',
-                  'analyzed_text': org_text, 'count': count}
-        return render(request, 'analyze.html', params)
+        params = {'purpose': 'Count number of characters', 'count': count, 'analyzed_text': org_text}
+        
+    if(removepunc != 'on' and capitalize != 'on' and newlineremover != 'on' and extraspaceremover != 'on' and charcount != 'on'):
+        return render(request, 'analyze.html', {'analyzed_text': org_text, 'purpose': 'No operation performed'})
     
-    else:
-        return HttpResponse("Error")
+    return render(request, 'analyze.html', params)
